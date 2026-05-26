@@ -363,6 +363,7 @@ module.exports = grammar({
 
     signal_statement: ($) =>
       seq(
+        optional($.annotations),
         "signal",
         field("name", $.name),
         optional(field("parameters", $.parameters)),

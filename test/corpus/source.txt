@@ -904,6 +904,27 @@ signal x(a, b: Type)
      (type (identifier))))))
 
 =====================================
+Signal with annotation in inner class
+=====================================
+
+class State:
+	@warning_ignore("unused_signal")
+	signal exited
+
+---
+
+(source
+  (class_definition
+    name: (name)
+    body: (class_body
+      (signal_statement
+        (annotations
+          (annotation
+            (identifier)
+            arguments: (arguments (string))))
+        name: (name)))))
+
+=====================================
 Class Name
 =====================================
 
