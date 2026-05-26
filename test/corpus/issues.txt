@@ -434,3 +434,20 @@ func _ready():
                 (identifier)
                 (arguments
                   (string))))))))))
+
+=========================================
+Extends with tool annotation on same line
+=========================================
+
+@tool extends Node
+class_name Foo
+
+---
+
+(source
+  (extends_statement
+    (annotations
+      (annotation (identifier)))
+    (type (identifier)))
+  (class_name_statement
+    name: (name)))

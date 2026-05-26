@@ -388,7 +388,10 @@ module.exports = grammar({
       ),
 
     extends_statement: ($) =>
-      prec(PREC.type, seq("extends", choice($.string, $.type))),
+      prec(
+        PREC.type,
+        seq(optional($.annotations), "extends", choice($.string, $.type)),
+      ),
 
     _compound_statement: ($) =>
       choice(
