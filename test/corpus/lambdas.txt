@@ -462,3 +462,29 @@ func x():
                       (pass_statement))))))
             (string)))))))
 
+================================
+Lambda with inline if statement
+================================
+
+visibility_changed.connect(func() -> void: if visible: _update())
+
+---
+
+(source
+  (expression_statement
+    (attribute
+      (identifier)
+      (attribute_call
+        (identifier)
+        arguments: (arguments
+          (lambda
+            parameters: (parameters)
+            return_type: (type (identifier))
+            body: (body
+              (if_statement
+                condition: (identifier)
+                body: (body
+                  (expression_statement
+                    (call
+                      (identifier)
+                      arguments: (arguments))))))))))))
