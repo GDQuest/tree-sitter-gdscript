@@ -203,12 +203,21 @@ module.exports = grammar({
     body: ($) =>
       choice(
         $._simple_statements,
+        $._inline_compound_statement,
         $._newline,
         $._body_end,
         seq($._indent, repeat($._statement), choice($._body_end, $._dedent)),
       ),
 
-    // Simple statements
+    // Compound statements that are valid inline (same line after `:`). elif and
+    // else are not supported by the official compiler (tested in Godot 4.6)
+    _inline_compound_statement: ($) =>
+      choice(
+        alias($._inline_if_statement, $.if_statement),
+        $.for_statement,
+        $.while_statement,
+        $.match_statement,
+      ),
 
     _simple_statements: ($) =>
       seq(
@@ -363,6 +372,7 @@ module.exports = grammar({
 
     signal_statement: ($) =>
       seq(
+        optional($.annotations),
         "signal",
         field("name", $.name),
         optional(field("parameters", $.parameters)),
@@ -378,7 +388,10 @@ module.exports = grammar({
       ),
 
     extends_statement: ($) =>
-      prec(PREC.type, seq("extends", choice($.string, $.type))),
+      prec(
+        PREC.type,
+        seq(optional($.annotations), "extends", choice($.string, $.type)),
+      ),
 
     _compound_statement: ($) =>
       choice(
@@ -401,6 +414,17 @@ module.exports = grammar({
         repeat(field("alternative", $.elif_clause)),
         optional(field("alternative", $.else_clause)),
       ),
+
+    // This rule is used to implement inline if statements like `if condition:
+    // do_something()`. elif and else blocks are not supported inline, e.g. if
+    // true: pass elif false: pass does not parse. That's why this rule exists.
+    // Without it, on top of being off spec, the parser gets confused as inline
+    // cases are ambiguous (if a: if b: elif c -> what does elif belong to?).
+    //
+    // We alias this as if_statement so that the AST node type is the same
+    // whether it's an inline if or a block.
+    _inline_if_statement: ($) =>
+      seq("if", field("condition", $._expression), ":", field("body", $.body)),
 
     elif_clause: ($) =>
       seq(
@@ -769,7 +793,7 @@ module.exports = grammar({
       seq(
         choice(
           seq(field("left", $._rhs_expression), ":"), // Lambdas are allowed here.
-          seq(field("left", $.identifier), "="),
+          seq(field("left", choice($.string, $.identifier)), "="),
         ),
         field("value", choice($._rhs_expression, $.pattern_binding)),
       ),
