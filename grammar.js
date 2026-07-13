@@ -75,7 +75,12 @@ module.exports = grammar({
     // -                                     Atoms                                 -
     // -----------------------------------------------------------------------------
 
-    _identifier: ($) => /[a-zA-Z_][a-zA-Z_0-9]*/,
+    // GDScript supports Unicode identifiers: characters with accents or
+    // identifiers written in a non-Latin language (Chinese, Japanese, etc.)
+    // XID_Start and XID_Continue are Unicode identifier code points
+    // \p means "match a Unicode character that is a member of the following
+    // category"
+    _identifier: ($) => /[_\p{XID_Start}][\p{XID_Continue}]*/u,
     // any "symbol"
     identifier: ($) => $._identifier,
     // named symbol of a statement
